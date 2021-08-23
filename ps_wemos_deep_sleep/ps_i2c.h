@@ -33,9 +33,9 @@ void startI2CInterfase();
 /* int getSensorDataI2C(float *pres_clin, float *temp)
  *  
  *  Realiza una lectura del sensor. Registra presión relativa a la atmosférica y temperatura
- *  Devuelve el status de la medición (<0 es error, 0 es OK)
+ *  Devuelve el status de la medición 
  */
-int getSensorDataI2C(float *pres_clin, float *temp);
+uint16_t getSensorDataI2C(float *pres_clin, float *temp);
 
 /* void scanI2CBus()
  *  

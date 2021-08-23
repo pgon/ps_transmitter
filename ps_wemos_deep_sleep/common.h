@@ -27,6 +27,17 @@
 const float P_max = 1260;
 const float P_min = 460;
 
+/* Gestión de alimentación del sensor
+ */
+#define PIN_SENSOR_VDD            D3
+// El sensor necesita un tiempo hasta dar una medición buena
+// Si se interrumpe la alimentación como parte de la estrategia de ahorro de energía 
+// no se debería leer inmediatamente después de reponerla
+// Se observó que para 500ms se tiene un sesgo de 3mmHg
+// Luego se observa que para valores mayores a 2seg, se converge a una lectura dentro de un desvío <1mmHg
+#define DELAY_SENSOR_STARTUP      2000
+
+
 /* Parámetros de la consola de logs por medio del puerto serie  
  */
 #define LOG_DATA_SPEED_TRANSFER   9600
@@ -44,8 +55,7 @@ const float P_min = 460;
 #define PIN_DEEP_SLEEP            D7
 #define SAMPLE_TIME_DEEP_SLEEP    30000
 // LUEGO DEJAR ESTO EN 2 SEGUNDOS POR EJEMPLO. AHORA ESTOY PROBANDO LA AUTONOMIA SIN DESCONECTAR WIFI PERO MANDANDO ESPACIADO
-#define SAMPLE_TIME               30000
-
+#define SAMPLE_TIME               2000
 
 
 /* Parámetros de conexion por WiFi
@@ -53,7 +63,7 @@ const float P_min = 460;
 
 #define ssid              "TeleRed-9724"
 #define password          "010101010101"
-#define host              "192.168.0.9"
+#define host              "192.168.0.13"
 
 /*
   #define ssid              "Internet para Todos"

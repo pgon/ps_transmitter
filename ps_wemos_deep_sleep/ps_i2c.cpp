@@ -28,7 +28,7 @@ void startI2CInterfase()
 }
 
 
-int getSensorDataI2C(float *pres_clin, float *temp)
+uint16_t getSensorDataI2C(float *pres_clin, float *temp)
 {
   char msg_received[10];
   
@@ -80,8 +80,8 @@ int getSensorDataI2C(float *pres_clin, float *temp)
   uint16_t DSP_S = DSP_S_H << 8 | DSP_S_L;
 
 
-  Serial.print("STATUS SENSOR=");
-  Serial.println(STATUS,HEX);
+  //Serial.print("STATUS SENSOR=");
+  //Serial.println(STATUS,HEX);
   //if ( STATUS != 0xC018 ) // TODO: Falta chequear el status cuando está todo OK!
   //  return -1;
 
@@ -101,7 +101,7 @@ int getSensorDataI2C(float *pres_clin, float *temp)
   float P_read_abs = P_min + ((sensor_counts + 26215) / 52429) * (P_max - P_min);
   *pres_clin = P_read_abs - 760;
 
-  return 0;
+  return STATUS;
 }
 
 

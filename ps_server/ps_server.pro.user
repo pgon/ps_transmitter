@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2021-08-07T17:38:53. -->
+<!-- Written by QtCreator 4.11.0, 2021-08-21T12:30:59. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -295,7 +295,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory"></value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default"></value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/pablo/projects/ps_transmitter/ps_server/Debug</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

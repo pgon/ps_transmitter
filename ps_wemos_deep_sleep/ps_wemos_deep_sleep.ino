@@ -1,18 +1,18 @@
 /***************************************************************************
- * Copyright (C) 2021 by Pablo Gonzalez <pgonzal@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   Copyright (C) 2021 by Pablo Gonzalez <pgonzal@gmail.com>
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***************************************************************************/
 
 /*
@@ -25,6 +25,8 @@
 
 #ifndef ANALOG_MEAS
 #include "ps_i2c.h"
+// Cuando mido por I2C dejo el ADC libre => lo puedo utilizar para sensar el nivel de batería
+ADC_MODE(ADC_VCC)
 #endif
 
 int flag_sleep_mode;  // 0: no sleep o modem sleep dependiendo de Ts    1: deep sleep
@@ -39,8 +41,8 @@ int startLogger()
   int flag_debug;
 
   pinMode(PIN_LOG, INPUT_PULLUP);
-  flag_debug = digitalRead(PIN_LOG);
-
+  flag_debug = !digitalRead(PIN_LOG);
+  
   if ( flag_debug )
   {
     // Arranca el puerto serie para log de datos
@@ -56,7 +58,7 @@ void cycleSleep(unsigned long t_sample)
   long t_sleep;
 
   if (flag_sleep_mode) // Deep sleep
-  {
+  {    
     t_sleep = SAMPLE_TIME_DEEP_SLEEP - (millis() - t_sample);
     if ( t_sleep < 0 )
       t_sleep = SAMPLE_TIME_DEEP_SLEEP;
@@ -73,9 +75,9 @@ void cycleSleep(unsigned long t_sample)
     logData(log_, "Durmiendo [ms]", t_sleep);
     rtc_last_sample_time += millis() + t_sleep;
     system_rtc_mem_write(64, &rtc_last_sample_time, 4);
-delay(t_sleep);
+
     // Solo paso a modem-sleep si vale la pena el tiempo en que apago la antena
-    /*if ( t_sleep > 10 )
+    if ( t_sleep > 10 )
     {
       WiFi.disconnect();
       WiFi.forceSleepBegin();
@@ -85,7 +87,6 @@ delay(t_sleep);
       WiFi.forceSleepWake();
       delay(1);
     }
-    */
   }
 }
 
@@ -110,10 +111,10 @@ int wifiConnect()
       return -1;
     }
   }
-/*
+
   if ( flag_sleep_mode == 0 )
     wifi_set_sleep_type(NONE_SLEEP_T);
-    */
+
   logData(log_, "Conectado a WiFi con IP", WiFi.localIP());
   return 0;
 }
@@ -139,10 +140,10 @@ int sockConnect()
 }
 
 
-void sockSendMeasurement(int sensor_status, float pres_clin, float temp, unsigned long t_sample)
+void sockSendMeasurement(uint16_t sensor_status, float pres_clin, float temp, unsigned long t_sample)
 {
   char buffer[100];
-  sprintf(buffer, "%2d;%7.2f;%7.2f;%10lu", sensor_status, pres_clin, temp, (millis() - t_sample));
+  sprintf(buffer, "%7u;%7.2f;%7.2f;%10lu", sensor_status, pres_clin, temp, (millis() - t_sample));
   logData(log_, "Mensaje al host", buffer);
   client.print(buffer);
   client.stop();
@@ -154,6 +155,7 @@ void setup()
   log_ = startLogger();
 
   pinMode(PIN_DEEP_SLEEP, INPUT_PULLUP);
+  pinMode(PIN_SENSOR_VDD, OUTPUT);
 
 #ifndef ANALOG_MEAS
   // Arranca la interfase digital para comunicar con sensor
@@ -164,8 +166,9 @@ void setup()
 void loop()
 {
   float pres_clin = 0, temp = 0;
-  int sensor_status = 0;
+  uint16_t sensor_status = 0;
   unsigned long t_sample;
+  uint16_t nivel_bateria = 0;
 
   // Lo primero es tomar la medición, para asegurarme una base de tiempo estable
   t_sample = millis();
@@ -175,19 +178,28 @@ void loop()
 #ifdef ANALOG_MEAS
   pres_clin = analogRead(A0);
 #else
+  // Alimento al sensor solo durante la medición para ahorrar energía
+  digitalWrite(PIN_SENSOR_VDD,HIGH);
+  delay(DELAY_SENSOR_STARTUP);  
+
   sensor_status = getSensorDataI2C(&pres_clin, &temp);
+  nivel_bateria = ESP.getVcc();
+
+  // Apago la alimentación del sensor
+  digitalWrite(PIN_SENSOR_VDD,LOW);  
 #endif
   logData(log_, "------------------------------\nLectura del sensor. Estado", sensor_status);
   logData(log_, "Presion [mmHg clin]", pres_clin);
   logData(log_, "Temperatura [°C]", temp);
 
   flag_sleep_mode = digitalRead(PIN_DEEP_SLEEP);
-// TODO: ESTOY FORZANDO ACA EL SLEEP MODE porque no puedo conectar otro cable entre D7 y GND
-flag_sleep_mode = 0;
+  // TODO: ESTOY FORZANDO ACA EL SLEEP MODE porque no puedo conectar otro cable entre D7 y GND
+  //flag_sleep_mode = 0;
 
   if ( WiFi.status() != WL_CONNECTED )
     wifiConnect();
   if ( WiFi.status() == WL_CONNECTED && sockConnect() == 0 )
-    sockSendMeasurement(sensor_status, pres_clin, temp, t_sample);
+    //sockSendMeasurement(sensor_status, pres_clin, temp, t_sample);
+    sockSendMeasurement(sensor_status, pres_clin, nivel_bateria/1000.0, t_sample);
   cycleSleep(t_sample);
 }

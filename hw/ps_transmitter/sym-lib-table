@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name Wemos)(type Legacy)(uri /home/pablo/projects/ps_transmitter/hw/wemos-d1-mini-kicad/libraries/wemos_mini.lib)(options "")(descr "")(disabled))
+  (lib (name wemos_d1_mini_batery_shield)(type Legacy)(uri ${KIPRJMOD}/wemos_d1_mini_batery_shield.lib)(options "")(descr ""))
+  (lib (name intrasense_board)(type Legacy)(uri ${KIPRJMOD}/intrasense_board.lib)(options "")(descr ""))
+)

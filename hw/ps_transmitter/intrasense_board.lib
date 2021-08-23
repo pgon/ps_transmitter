@@ -1,0 +1,24 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# Intrasense_calib_board
+#
+DEF Intrasense_calib_board U 0 20 Y Y 1 F N
+F0 "U" 150 750 50 H V L CNN
+F1 "Intrasense_calib_board" 50 -750 50 H V L CNN
+F2 "Module:Intrasense_calib_board" 0 -1150 50 H I C CNN
+F3 "" -1850 -1150 50 H I C CNN
+$FPLIST
+ WEMOS*D1*mini*
+$ENDFPLIST
+DRAW
+S -300 700 300 -700 1 1 10 f
+X VDD 1 -400 400 100 R 50 50 1 1 I
+X I2C_signal 16 -400 0 100 R 50 50 1 1 O
+X GND 2 -400 300 100 R 50 50 1 1 I
+X AO 3 -400 200 100 R 50 50 1 1 O
+X I2C_clock 4 -400 100 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+#End Library

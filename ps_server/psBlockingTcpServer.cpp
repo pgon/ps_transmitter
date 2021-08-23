@@ -42,7 +42,7 @@ void psBlockingTcpServer::newConnection()
 
     if( socket->waitForReadyRead(SOCKET_TIMEOUT) )
     {
-        int read_status=-1;
+        unsigned int read_status;
         double pressure_clin,temperature;
         quint64 delta_sample_time_wemos;
 
@@ -52,13 +52,14 @@ void psBlockingTcpServer::newConnection()
         qDebug() << "Datos recibidos por socket" << data_received;
         if( data_array.length()==4 )
         {
-            read_status = data_array.at(0).toInt();
+            read_status = data_array.at(0).toUInt();
             pressure_clin = data_array.at(1).toDouble();
             temperature = data_array.at(2).toDouble();
             delta_sample_time_wemos = data_array.at(3).toULongLong();
         }
         QDateTime current_time = QDateTime::currentDateTime();
-        if( read_status==0 )
+        //if( read_status==0 )
+        /// TODO: todavia no se como interpretar el status del sensor
         {
             qDebug() << "Mediciones válidas: " << pressure_clin << "mmHg clin   a temperatura: " << temperature;
             // El problema de los 2 relojes. Asumo que el jitter no es tan grave cuando la conexion es buena
@@ -72,14 +73,15 @@ void psBlockingTcpServer::newConnection()
             if( file.open(QFile::Append))
             {
                 QTextStream output(&file);
-                output << sample_time.toString("dd/MM/yyyy hh:mm:ss") << ";" << QString::number(sample_time.toSecsSinceEpoch()) << ";" <<  QString::number(pressure_clin) << ";" <<QString::number(temperature) << ";" << QString::number(delta_sample_time_wemos) << "\n";
+                output << sample_time.toString("dd/MM/yyyy hh:mm:ss") << ";" << QString::number(sample_time.toSecsSinceEpoch()) << ";" <<  QString::number(pressure_clin) << ";" <<QString::number(temperature) << ";" << QString::number(delta_sample_time_wemos) << ";" << QString::number(read_status) << "\n";
             }
         }
-        else
+        /*else
         {
             qDebug() << "Error de sensor -> Medición inválida ";
             emit sensorStatus(socketDescriptor,-1,current_time);
         }
+        */
     }
     else
         emit sensorStatus(socketDescriptor,-2,QDateTime::currentDateTime());
