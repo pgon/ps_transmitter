@@ -42,7 +42,8 @@ int startLogger()
 
   pinMode(PIN_LOG, INPUT_PULLUP);
   flag_debug = !digitalRead(PIN_LOG);
-  
+  flag_debug = true;
+
   if ( flag_debug )
   {
     // Arranca el puerto serie para log de datos
@@ -58,7 +59,7 @@ void cycleSleep(unsigned long t_sample)
   long t_sleep;
 
   if (flag_sleep_mode) // Deep sleep
-  {    
+  {
     t_sleep = SAMPLE_TIME_DEEP_SLEEP - (millis() - t_sample);
     if ( t_sleep < 0 )
       t_sleep = SAMPLE_TIME_DEEP_SLEEP;
@@ -77,7 +78,7 @@ void cycleSleep(unsigned long t_sample)
     system_rtc_mem_write(64, &rtc_last_sample_time, 4);
 
     // Solo paso a modem-sleep si vale la pena el tiempo en que apago la antena
-    if ( t_sleep > 10 )
+    if ( t_sleep > 10000 )
     {
       WiFi.disconnect();
       WiFi.forceSleepBegin();
@@ -96,7 +97,8 @@ int wifiConnect()
   logData(log_, "Password utilizada", password);
 
   // Establecer parámetros de conexión
-  // WiFi.persistent( false );
+  WiFi.disconnect(true);
+  WiFi.persistent( false );
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
@@ -175,31 +177,41 @@ void loop()
   // Se obtiene el tiempo de muestra actual usando la info guardada en la memoria del RTC en el ciclo previo
   system_rtc_mem_read(64, (void*) &rtc_last_sample_time, 4);
 
+  flag_sleep_mode = digitalRead(PIN_DEEP_SLEEP);
+  // TODO: ESTOY FORZANDO ACA EL SLEEP MODE porque no puedo conectar otro cable entre D7 y GND
+  flag_sleep_mode = 0;
+
+  if (flag_sleep_mode && !digitalRead(PIN_SENSOR_VDD))
+  {
+    // Alimento al sensor solo durante la medición para ahorrar energía
+    digitalWrite(PIN_SENSOR_VDD, HIGH);
+    delay(DELAY_SENSOR_STARTUP);
+  }
 #ifdef ANALOG_MEAS
   pres_clin = analogRead(A0);
 #else
-  // Alimento al sensor solo durante la medición para ahorrar energía
-  digitalWrite(PIN_SENSOR_VDD,HIGH);
-  delay(DELAY_SENSOR_STARTUP);  
-
   sensor_status = getSensorDataI2C(&pres_clin, &temp);
-  nivel_bateria = ESP.getVcc();
-
-  // Apago la alimentación del sensor
-  digitalWrite(PIN_SENSOR_VDD,LOW);  
 #endif
+  // Tomo el nivel de batería con toda la carga posible (WiFi + Sensor)
+  nivel_bateria = ESP.getVcc();
+  if (flag_sleep_mode)  // Apago la alimentación del sensor
+    digitalWrite(PIN_SENSOR_VDD, LOW);
+
+  // Cuando el nivel de batería no es el suficiente, anulo la medición y genero un status negativo
+  if ( nivel_bateria < MIN_BATERY_LEVEL )
+  {
+    pres_clin = -9999;
+    sensor_status = -1;
+  }
   logData(log_, "------------------------------\nLectura del sensor. Estado", sensor_status);
   logData(log_, "Presion [mmHg clin]", pres_clin);
   logData(log_, "Temperatura [°C]", temp);
 
-  flag_sleep_mode = digitalRead(PIN_DEEP_SLEEP);
-  // TODO: ESTOY FORZANDO ACA EL SLEEP MODE porque no puedo conectar otro cable entre D7 y GND
-  //flag_sleep_mode = 0;
 
   if ( WiFi.status() != WL_CONNECTED )
     wifiConnect();
   if ( WiFi.status() == WL_CONNECTED && sockConnect() == 0 )
     //sockSendMeasurement(sensor_status, pres_clin, temp, t_sample);
-    sockSendMeasurement(sensor_status, pres_clin, nivel_bateria/1000.0, t_sample);
+    sockSendMeasurement(sensor_status, pres_clin, nivel_bateria / 1000.0, t_sample);
   cycleSleep(t_sample);
 }

@@ -30,6 +30,7 @@ const float P_min = 460;
 /* Gestión de alimentación del sensor
  */
 #define PIN_SENSOR_VDD            D3
+#define MIN_BATERY_LEVEL          28000
 // El sensor necesita un tiempo hasta dar una medición buena
 // Si se interrumpe la alimentación como parte de la estrategia de ahorro de energía 
 // no se debería leer inmediatamente después de reponerla
@@ -60,15 +61,10 @@ const float P_min = 460;
 
 /* Parámetros de conexion por WiFi
  */
-
+/*
 #define ssid              "TeleRed-9724"
 #define password          "010101010101"
 #define host              "192.168.0.13"
-
-/*
-  #define ssid              "Internet para Todos"
-  #define password          "0101010101"
-  #define host              "192.168.0.9"
 */
 
 /*
@@ -76,6 +72,9 @@ const float P_min = 460;
 #define password          "010101010101"
 #define host              "10.42.0.1"
 */
+#define ssid              "iap"
+#define password          "lucas1234"
+#define host              "192.168.137.1"
 
 #define port              9999
 #define NB_RETRY_WIFI     20             // cantidad de reintentos de conexion a WiFi
