@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="led_r">images/led_r_1.png</file>
+        <file alias="led_v">images/led_v_1.png</file>
+    </qresource>
+</RCC>
