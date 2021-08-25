@@ -33,6 +33,12 @@ int flag_sleep_mode;  // 0: no sleep o modem sleep dependiendo de Ts    1: deep 
 unsigned long rtc_last_sample_time;
 WiFiClient client;
 
+#ifdef STATIC_ADRESS
+IPAddress staticIP(sta_address);
+IPAddress gateway(sta_gateway);
+IPAddress subnet(sta_netmask);
+#endif
+
 int log_;
 #define logData(flag,tag,value)  {if(flag){Serial.print(tag);Serial.print(": ");Serial.println(value);}}
 #define logMsg(flag,msg)         {if(flag){Serial.println(msg);}}
@@ -48,6 +54,8 @@ int startLogger()
   {
     // Arranca el puerto serie para log de datos
     Serial.begin(LOG_DATA_SPEED_TRANSFER);
+    Serial.setDebugOutput(DEBUG_OUTPUT);
+
     Serial.println("\n\nCliente adquisidor remoto");
     Serial.println("IAP (C) 2021\n");
   }
@@ -62,7 +70,7 @@ void cycleSleep(unsigned long t_sample)
   {
     t_sleep = SAMPLE_TIME_DEEP_SLEEP - (millis() - t_sample);
     if ( t_sleep < 0 )
-      t_sleep = SAMPLE_TIME_DEEP_SLEEP;
+      t_sleep = 0; //SAMPLE_TIME_DEEP_SLEEP;
     logData(log_, "Durmiendo PROFUNDAMENTE [ms]", t_sleep);
     rtc_last_sample_time += millis() + t_sleep;
     system_rtc_mem_write(64, &rtc_last_sample_time, 4);
@@ -72,7 +80,7 @@ void cycleSleep(unsigned long t_sample)
   {
     t_sleep = SAMPLE_TIME - (millis() - t_sample);
     if ( t_sleep < 0 )
-      t_sleep = SAMPLE_TIME;
+      t_sleep = 0; //SAMPLE_TIME;
     logData(log_, "Durmiendo [ms]", t_sleep);
     rtc_last_sample_time += millis() + t_sleep;
     system_rtc_mem_write(64, &rtc_last_sample_time, 4);
@@ -88,34 +96,37 @@ void cycleSleep(unsigned long t_sample)
       WiFi.forceSleepWake();
       delay(1);
     }
+    else
+      delay(t_sleep);
   }
 }
 
-int wifiConnect()
+int waitForConnection()
 {
+  int wifi_status;
+  wifi_status = WiFi.status();
+  if ( wifi_status == WL_CONNECTED )
+    return 0;
+
   logData(log_, "Intentando conectar a Red", ssid);
   logData(log_, "Password utilizada", password);
 
-  // Establecer parámetros de conexión
-  WiFi.disconnect(true);
-  WiFi.persistent( false );
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
   int retry_counter_wifi = 0;
-  while (WiFi.status() != WL_CONNECTED)
+  while (wifi_status != WL_CONNECTED)
   {
     delay(500);
     retry_counter_wifi++;
     if ( retry_counter_wifi >= NB_RETRY_WIFI )
     {
-      logMsg(log_, "Imposible conectar a red WiFi");
+      logMsg(log_, "(!) -----> Imposible conectar a red WiFi");
+      logMsg(log_, "****************************************");
+      if (log_)
+        WiFi.printDiag(Serial);
+      logMsg(log_, "****************************************");
       return -1;
     }
+    wifi_status = WiFi.status();
   }
-
-  if ( flag_sleep_mode == 0 )
-    wifi_set_sleep_type(NONE_SLEEP_T);
 
   logData(log_, "Conectado a WiFi con IP", WiFi.localIP());
   return 0;
@@ -133,7 +144,7 @@ int sockConnect()
     retry_counter_socket++;
     if ( retry_counter_socket >= NB_RETRY_SOCKET )
     {
-      logMsg(log_, "Imposible conectar con Host");
+      logMsg(log_, "(!) -----> Imposible conectar con Host");
       return -1;
     }
     delay(500);
@@ -159,6 +170,31 @@ void setup()
   pinMode(PIN_DEEP_SLEEP, INPUT_PULLUP);
   pinMode(PIN_SENSOR_VDD, OUTPUT);
 
+  // Establecer parámetros de conexión
+#ifdef STATIC_ADRESS
+  WiFi.config(staticIP, gateway, subnet);
+#endif
+  if ( WiFi.SSID() != String(ssid) )
+  {
+    logMsg(log_, "Seteando nueva configuracion de WiFi");
+    if ( !WiFi.getPersistent())
+      WiFi.persistent(true);
+    WiFi.mode(WIFI_STA);
+    WiFi.hostname("ESP-ps");
+    WiFi.begin(ssid, password);
+  }
+  else
+  {
+    logMsg(log_, "Usando configuracion WiFi almacenada");
+    WiFi.reconnect();
+  }
+  if ( !WiFi.getAutoConnect() )
+    WiFi.setAutoConnect(true);
+
+#ifdef SET_802_11G_MODE
+  wifi_set_phy_mode(PHY_MODE_11G);
+#endif
+  
 #ifndef ANALOG_MEAS
   // Arranca la interfase digital para comunicar con sensor
   startI2CInterfase();
@@ -180,6 +216,8 @@ void loop()
   flag_sleep_mode = digitalRead(PIN_DEEP_SLEEP);
   // TODO: ESTOY FORZANDO ACA EL SLEEP MODE porque no puedo conectar otro cable entre D7 y GND
   flag_sleep_mode = 0;
+  if ( flag_sleep_mode == 0 )
+    wifi_set_sleep_type(NONE_SLEEP_T);
 
   if (flag_sleep_mode && !digitalRead(PIN_SENSOR_VDD))
   {
@@ -198,19 +236,18 @@ void loop()
     digitalWrite(PIN_SENSOR_VDD, LOW);
 
   // Cuando el nivel de batería no es el suficiente, anulo la medición y genero un status negativo
-  if ( nivel_bateria < MIN_BATERY_LEVEL )
+  if (nivel_bateria < MIN_BATERY_LEVEL)
   {
     pres_clin = -9999;
     sensor_status = -1;
+    logData(log_, "Nivel de batería bajo: ", nivel_bateria);
+    logData(log_, "Nivel Umbral: ", MIN_BATERY_LEVEL);
   }
   logData(log_, "------------------------------\nLectura del sensor. Estado", sensor_status);
   logData(log_, "Presion [mmHg clin]", pres_clin);
   logData(log_, "Temperatura [°C]", temp);
 
-
-  if ( WiFi.status() != WL_CONNECTED )
-    wifiConnect();
-  if ( WiFi.status() == WL_CONNECTED && sockConnect() == 0 )
+  if ( waitForConnection() == 0 && sockConnect() == 0 )
     //sockSendMeasurement(sensor_status, pres_clin, temp, t_sample);
     sockSendMeasurement(sensor_status, pres_clin, nivel_bateria / 1000.0, t_sample);
   cycleSleep(t_sample);

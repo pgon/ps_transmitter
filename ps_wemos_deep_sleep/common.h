@@ -30,7 +30,7 @@ const float P_min = 460;
 /* Gestión de alimentación del sensor
  */
 #define PIN_SENSOR_VDD            D3
-#define MIN_BATERY_LEVEL          28000
+#define MIN_BATERY_LEVEL          2800
 // El sensor necesita un tiempo hasta dar una medición buena
 // Si se interrumpe la alimentación como parte de la estrategia de ahorro de energía 
 // no se debería leer inmediatamente después de reponerla
@@ -41,11 +41,14 @@ const float P_min = 460;
 
 /* Parámetros de la consola de logs por medio del puerto serie  
  */
-#define LOG_DATA_SPEED_TRANSFER   9600
+#define LOG_DATA_SPEED_TRANSFER   115200
 #define PIN_LOG                   D5
+#define DEBUG_OUTPUT              false
 
 
-// Si quiero solo lecturas analógicas, descomentar la siguiente línea
+/* Si quiero solo lecturas analógicas, descomentar la siguiente línea
+   Atención, así se pierde el monitoreo de la batería
+*/
 //#define ANALOG_MEAS
 
 
@@ -66,18 +69,32 @@ const float P_min = 460;
 #define password          "010101010101"
 #define host              "192.168.0.13"
 */
-
 /*
 #define ssid              "ppp"
 #define password          "010101010101"
 #define host              "10.42.0.1"
 */
-#define ssid              "iap"
+
+
+/*#define ssid              "iap"
 #define password          "lucas1234"
 #define host              "192.168.137.1"
+*/
 
+#define ssid              "CARRASCO 2.4"
+#define password          "plautico51sarapera86"
+//#define SET_802_11G_MODE
+
+#define STATIC_ADRESS
+#ifdef STATIC_ADRESS
+#define sta_address       {192,168,0,80}
+#define sta_gateway       {192,168,0,79}
+#define sta_netmask       {255,255,255,0}
+#endif
+
+#define host              "192.168.0.79"
 #define port              9999
-#define NB_RETRY_WIFI     20             // cantidad de reintentos de conexion a WiFi
-#define NB_RETRY_SOCKET   5
+#define NB_RETRY_WIFI     20             // espera de la conexión a WiFi = NB_RETRY_WIFI*500ms
+#define NB_RETRY_SOCKET   5              // reintentos para conexión a host
 
 #endif

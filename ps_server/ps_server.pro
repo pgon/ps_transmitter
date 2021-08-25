@@ -32,8 +32,15 @@ HEADERS += \
 FORMS += \
     frmmain.ui
 
+unix {
 LIBS += -lqwt-qt5
 INCLUDEPATH += /usr/include/qwt
+}
+win32 {
+LIBS += "../3rd-party/qwt-6.1.4/lib/libqwtd.a"
+INCLUDEPATH += "../3rd-party/qwt-6.1.4/include/qwt"
+INCLUDEPATH += "../3rd-party/qwt-6.1.4/include"
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
