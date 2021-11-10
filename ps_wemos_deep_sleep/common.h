@@ -58,25 +58,15 @@ const float P_min = 460;
 */
 #define PIN_DEEP_SLEEP            D7
 #define SAMPLE_TIME_DEEP_SLEEP    30000
-// LUEGO DEJAR ESTO EN 2 SEGUNDOS POR EJEMPLO. AHORA ESTOY PROBANDO LA AUTONOMIA SIN DESCONECTAR WIFI PERO MANDANDO ESPACIADO
 #define SAMPLE_TIME               2000
 
 
 /* Parámetros de conexion por WiFi
 */
-#define PRUEBA_TELERED
-
-/*
-  #define ssid              "ppp"
-  #define password          "010101010101"
-  #define host              "10.42.0.1"
-*/
-
-
-/*#define ssid              "iap"
-  #define password          "lucas1234"
-  #define host              "192.168.137.1"
-*/
+//#define PRUEBA_TELERED
+//#define PRUEBA_ROUTER_TPLINK
+//#define PRUEBA_HOTSPOT
+#define PRUEBA_ROUTER_IAP2
 
 #ifdef PRUEBA_TELERED
 #define ssid              "TeleRed-9724"
@@ -92,19 +82,45 @@ const float P_min = 460;
 #define host              "192.168.0.13"
 #endif
 
-#ifdef PRUEBA_CARRASCO
-#define ssid              "CARRASCO 2.4"
-#define password          ""
+#ifdef PRUEBA_ROUTER_IAP2
+#define ssid              "iap_2"
+#define password          "lucas1234"
 //#define SET_802_11G_MODE
-
 #define STATIC_ADRESS
 #ifdef STATIC_ADRESS
-#define sta_address       {192,168,0,80}
-#define sta_gateway       {192,168,0,79}
+#define sta_address       {192,168,1,10}
+#define sta_gateway       {192,168,1,1}
 #define sta_netmask       {255,255,255,0}
 #endif
-#define host              "192.168.0.79"
+#define host              "192.168.1.100"
 #endif
+
+
+#ifdef PRUEBA_ROUTER_TPLINK
+#define ssid              "TP-LINK_BDF7E6"
+#define password          "010101010101"
+#define STATIC_ADRESS
+#ifdef STATIC_ADRESS
+#define sta_address       {192,168,1,130}
+#define sta_gateway       {192,168,1,115}
+#define sta_netmask       {255,255,255,0}
+#endif
+#define host              "192.168.1.115"
+#endif
+
+#ifdef PRUEBA_HOTSPOT
+#define ssid              "iap"
+#define password          "lucas1234"
+//#define SET_802_11G_MODE
+#define STATIC_ADRESS
+#ifdef STATIC_ADRESS
+#define sta_address       {10,42,0,80}
+#define sta_gateway       {10,42,0,1}
+#define sta_netmask       {255,255,255,0}
+#endif
+#define host              "10.42.0.1"
+#endif
+
 
 #define port              9999
 #define NB_RETRY_WIFI     20             // espera de la conexión a WiFi = NB_RETRY_WIFI*500ms

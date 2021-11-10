@@ -30,6 +30,7 @@ ADC_MODE(ADC_VCC)
 #endif
 
 int flag_sleep_mode;  // 0: no sleep o modem sleep dependiendo de Ts    1: deep sleep
+int flag_sleep_mode_ant=-1; 
 unsigned long rtc_last_sample_time;
 WiFiClient client;
 
@@ -66,11 +67,11 @@ void cycleSleep(unsigned long t_sample)
 {
   long t_sleep;
 
-  if (flag_sleep_mode) // Deep sleep
+  if (flag_sleep_mode == 1) // Deep sleep
   {
     t_sleep = SAMPLE_TIME_DEEP_SLEEP - (millis() - t_sample);
     if ( t_sleep < 0 )
-      t_sleep = 0; //SAMPLE_TIME_DEEP_SLEEP;
+      t_sleep = SAMPLE_TIME_DEEP_SLEEP;
     logData(log_, "Durmiendo PROFUNDAMENTE [ms]", t_sleep);
     rtc_last_sample_time += millis() + t_sleep;
     system_rtc_mem_write(64, &rtc_last_sample_time, 4);
@@ -80,7 +81,7 @@ void cycleSleep(unsigned long t_sample)
   {
     t_sleep = SAMPLE_TIME - (millis() - t_sample);
     if ( t_sleep < 0 )
-      t_sleep = 0; //SAMPLE_TIME;
+      t_sleep = SAMPLE_TIME;
     logData(log_, "Durmiendo [ms]", t_sleep);
     rtc_last_sample_time += millis() + t_sleep;
     system_rtc_mem_write(64, &rtc_last_sample_time, 4);
@@ -169,6 +170,7 @@ void setup()
 
   pinMode(PIN_DEEP_SLEEP, INPUT_PULLUP);
   pinMode(PIN_SENSOR_VDD, OUTPUT);
+  digitalWrite(PIN_SENSOR_VDD, LOW);
 
   // Establecer parámetros de conexión
 #ifdef STATIC_ADRESS
@@ -194,7 +196,7 @@ void setup()
 #ifdef SET_802_11G_MODE
   wifi_set_phy_mode(PHY_MODE_11G);
 #endif
-  
+
 #ifndef ANALOG_MEAS
   // Arranca la interfase digital para comunicar con sensor
   startI2CInterfase();
@@ -213,13 +215,13 @@ void loop()
   // Se obtiene el tiempo de muestra actual usando la info guardada en la memoria del RTC en el ciclo previo
   system_rtc_mem_read(64, (void*) &rtc_last_sample_time, 4);
 
-  flag_sleep_mode = digitalRead(PIN_DEEP_SLEEP);
-  // TODO: ESTOY FORZANDO ACA EL SLEEP MODE porque no puedo conectar otro cable entre D7 y GND
-  flag_sleep_mode = 0;
-  if ( flag_sleep_mode == 0 )
+  flag_sleep_mode = !digitalRead(PIN_DEEP_SLEEP);
+logData(log_, "****************SLEEP MODE = ", flag_sleep_mode);  
+  if ( flag_sleep_mode == 0 && flag_sleep_mode != flag_sleep_mode_ant )
     wifi_set_sleep_type(NONE_SLEEP_T);
+  flag_sleep_mode_ant = flag_sleep_mode;
 
-  if (flag_sleep_mode && !digitalRead(PIN_SENSOR_VDD))
+  if (!digitalRead(PIN_SENSOR_VDD))
   {
     // Alimento al sensor solo durante la medición para ahorrar energía
     digitalWrite(PIN_SENSOR_VDD, HIGH);
@@ -232,7 +234,7 @@ void loop()
 #endif
   // Tomo el nivel de batería con toda la carga posible (WiFi + Sensor)
   nivel_bateria = ESP.getVcc();
-  if (flag_sleep_mode)  // Apago la alimentación del sensor
+  if (flag_sleep_mode == 1) // Apago la alimentación del sensor
     digitalWrite(PIN_SENSOR_VDD, LOW);
 
   // Cuando el nivel de batería no es el suficiente, anulo la medición y genero un status negativo
@@ -250,5 +252,6 @@ void loop()
   if ( waitForConnection() == 0 && sockConnect() == 0 )
     //sockSendMeasurement(sensor_status, pres_clin, temp, t_sample);
     sockSendMeasurement(sensor_status, pres_clin, nivel_bateria / 1000.0, t_sample);
+  //sockSendMeasurement(0, millis()/1000.0, nivel_bateria / 1000.0, t_sample);
   cycleSleep(t_sample);
 }
