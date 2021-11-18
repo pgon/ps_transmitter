@@ -29,14 +29,17 @@ const float P_min = 460;
 
 /* Gestión de alimentación del sensor
 */
-#define PIN_SENSOR_VDD            D3
 #define MIN_BATERY_LEVEL          2800
+//#define SOURCE_SENSOR_FROM_DO
+#ifdef SOURCE_SENSOR_FROM_DO
+#define PIN_SENSOR_VDD            D3
 // El sensor necesita un tiempo hasta dar una medición buena
 // Si se interrumpe la alimentación como parte de la estrategia de ahorro de energía
 // no se debería leer inmediatamente después de reponerla
 // Se observó que para 500ms se tiene un sesgo de 3mmHg
 // Luego se observa que para valores mayores a 2seg, se converge a una lectura dentro de un desvío <1mmHg
 #define DELAY_SENSOR_STARTUP      2000
+#endif
 
 
 /* Parámetros de la consola de logs por medio del puerto serie

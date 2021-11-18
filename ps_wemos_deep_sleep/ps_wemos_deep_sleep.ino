@@ -30,7 +30,7 @@ ADC_MODE(ADC_VCC)
 #endif
 
 int flag_sleep_mode;  // 0: no sleep o modem sleep dependiendo de Ts    1: deep sleep
-int flag_sleep_mode_ant=-1; 
+int flag_sleep_mode_ant = -1;
 unsigned long rtc_last_sample_time;
 WiFiClient client;
 
@@ -169,8 +169,10 @@ void setup()
   log_ = startLogger();
 
   pinMode(PIN_DEEP_SLEEP, INPUT_PULLUP);
+#ifdef SOURCE_SENSOR_FROM_DO
   pinMode(PIN_SENSOR_VDD, OUTPUT);
   digitalWrite(PIN_SENSOR_VDD, LOW);
+#endif
 
   // Establecer parámetros de conexión
 #ifdef STATIC_ADRESS
@@ -216,26 +218,32 @@ void loop()
   system_rtc_mem_read(64, (void*) &rtc_last_sample_time, 4);
 
   flag_sleep_mode = !digitalRead(PIN_DEEP_SLEEP);
-logData(log_, "****************SLEEP MODE = ", flag_sleep_mode);  
+  logData(log_, "****************SLEEP MODE = ", flag_sleep_mode);
   if ( flag_sleep_mode == 0 && flag_sleep_mode != flag_sleep_mode_ant )
     wifi_set_sleep_type(NONE_SLEEP_T);
   flag_sleep_mode_ant = flag_sleep_mode;
 
+#ifdef SOURCE_SENSOR_FROM_DO
   if (!digitalRead(PIN_SENSOR_VDD))
   {
     // Alimento al sensor solo durante la medición para ahorrar energía
     digitalWrite(PIN_SENSOR_VDD, HIGH);
     delay(DELAY_SENSOR_STARTUP);
   }
+#endif
 #ifdef ANALOG_MEAS
   pres_clin = analogRead(A0);
 #else
   sensor_status = getSensorDataI2C(&pres_clin, &temp);
 #endif
   // Tomo el nivel de batería con toda la carga posible (WiFi + Sensor)
-  nivel_bateria = ESP.getVcc();
+  // Noté también que hay un sesgo de 0.302V en la medición  
+  nivel_bateria = ESP.getVcc() + 302;
+
+#ifdef SOURCE_SENSOR_FROM_DO
   if (flag_sleep_mode == 1) // Apago la alimentación del sensor
     digitalWrite(PIN_SENSOR_VDD, LOW);
+#endif
 
   // Cuando el nivel de batería no es el suficiente, anulo la medición y genero un status negativo
   if (nivel_bateria < MIN_BATERY_LEVEL)
