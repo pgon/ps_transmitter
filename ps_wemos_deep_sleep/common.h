@@ -18,6 +18,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#define PIN_DISPLAY_VDD           D3
+#define PIN_FN                    D5
 
 /* Datos del sensor a ser tomados de la hoja de datos
    La idea es programar un WEMOS para cada sensor y que estos queden hermanados
@@ -29,7 +31,7 @@ const float P_min = 460;
 
 /* Gestión de alimentación del sensor
 */
-#define MIN_BATERY_LEVEL          2800
+#define MIN_BATERY_LEVEL          2000
 //#define SOURCE_SENSOR_FROM_DO
 #ifdef SOURCE_SENSOR_FROM_DO
 #define PIN_SENSOR_VDD            D3
@@ -45,7 +47,7 @@ const float P_min = 460;
 /* Parámetros de la consola de logs por medio del puerto serie
 */
 #define LOG_DATA_SPEED_TRANSFER   115200
-#define PIN_LOG                   D5
+#define PIN_LOG                   D4
 #define DEBUG_OUTPUT              false
 
 
@@ -66,67 +68,21 @@ const float P_min = 460;
 
 /* Parámetros de conexion por WiFi
 */
-//#define PRUEBA_TELERED
-//#define PRUEBA_ROUTER_TPLINK
-//#define PRUEBA_HOTSPOT
-#define PRUEBA_ROUTER_IAP2
-
-#ifdef PRUEBA_TELERED
-#define ssid              "TeleRed-9724"
-#define password          "010101010101"
-//#define SET_802_11G_MODE
-
-#define STATIC_ADRESS
-#ifdef STATIC_ADRESS
-#define sta_address       {192,168,0,80}
-#define sta_gateway       {192,168,0,13}
-#define sta_netmask       {255,255,255,0}
-#endif
-#define host              "192.168.0.13"
-#endif
-
-#ifdef PRUEBA_ROUTER_IAP2
-#define ssid              "iap_2"
 #define password          "lucas1234"
-//#define SET_802_11G_MODE
-#define STATIC_ADRESS
-#ifdef STATIC_ADRESS
-#define sta_address       {192,168,1,10}
-#define sta_gateway       {192,168,1,1}
-#define sta_netmask       {255,255,255,0}
-#endif
-#define host              "192.168.1.100"
-#endif
-
-
-#ifdef PRUEBA_ROUTER_TPLINK
-#define ssid              "TP-LINK_BDF7E6"
-#define password          "010101010101"
-#define STATIC_ADRESS
-#ifdef STATIC_ADRESS
-#define sta_address       {192,168,1,130}
-#define sta_gateway       {192,168,1,115}
-#define sta_netmask       {255,255,255,0}
-#endif
-#define host              "192.168.1.115"
-#endif
-
-#ifdef PRUEBA_HOTSPOT
-#define ssid              "iap"
-#define password          "lucas1234"
-//#define SET_802_11G_MODE
-#define STATIC_ADRESS
-#ifdef STATIC_ADRESS
-#define sta_address       {10,42,0,80}
-#define sta_gateway       {10,42,0,1}
-#define sta_netmask       {255,255,255,0}
-#endif
-#define host              "10.42.0.1"
-#endif
-
-
+#define ssid_key          "iap"
 #define port              9999
 #define NB_RETRY_WIFI     20             // espera de la conexión a WiFi = NB_RETRY_WIFI*500ms
 #define NB_RETRY_SOCKET   5              // reintentos para conexión a host
+
+
+#define SSID_STR_SIZE 20
+typedef struct { 
+    byte flag_paired;
+    char ssid_str[SSID_STR_SIZE] = "";
+    byte local_ip[4];
+    byte gateway_ip[4];
+    byte subnet[4];
+    byte server_ip[4];
+  } TPersistentData;
 
 #endif

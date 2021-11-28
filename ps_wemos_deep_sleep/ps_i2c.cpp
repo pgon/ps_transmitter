@@ -1,18 +1,18 @@
 /***************************************************************************
- * Copyright (C) 2021 by Pablo Gonzalez <pgonzal@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   Copyright (C) 2021 by Pablo Gonzalez <pgonzal@gmail.com>
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***************************************************************************/
 
 #include <ESP8266WiFi.h>
@@ -31,7 +31,7 @@ void startI2CInterfase()
 uint16_t getSensorDataI2C(float *pres_clin, float *temp)
 {
   char msg_received[10];
-  
+
   *pres_clin = 0;
   *temp = 0;
 
@@ -62,7 +62,10 @@ uint16_t getSensorDataI2C(float *pres_clin, float *temp)
   // Si hubo error a nivel I2C se marca la lectura como errónea indicando a la capa superior
   // que no puede usarla
   if ( Wire.endTransmission() != 0 )
+  {
+    //Serial.print("************ SMI: Error canal comunicacion I2C");
     return -1;
+  }
 
   // Asignación de registros según los datos leídos
   uint16_t DSP_T_L =  (uint16_t) msg_received[0];
