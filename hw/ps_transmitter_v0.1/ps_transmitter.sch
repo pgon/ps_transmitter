@@ -1,0 +1,274 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "Transmisor de presión WiFi"
+Date "2021-08-21"
+Rev "prototipo v0.1"
+Comp "IAP"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L MCU_Module:WeMos_D1_mini U1
+U 1 1 61219EB9
+P 3550 3550
+F 0 "U1" H 3550 2661 50  0000 C CNN
+F 1 "WeMos_D1_mini" H 3550 2570 50  0000 C CNN
+F 2 "Module:WEMOS_D1_mini_light" H 3550 2400 50  0001 C CNN
+F 3 "https://wiki.wemos.cc/products:d1:d1_mini#documentation" H 1700 2400 50  0001 C CNN
+	1    3550 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:Battery_Cell BT1
+U 1 1 6121D2BE
+P 1500 3100
+F 0 "BT1" H 1618 3196 50  0000 L CNN
+F 1 "CR123 3V" H 1618 3105 50  0000 L CNN
+F 2 "" V 1500 3160 50  0001 C CNN
+F 3 "~" V 1500 3160 50  0001 C CNN
+	1    1500 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR01
+U 1 1 61224759
+P 1500 2650
+F 0 "#PWR01" H 1500 2500 50  0001 C CNN
+F 1 "VDD" H 1517 2823 50  0000 C CNN
+F 2 "" H 1500 2650 50  0001 C CNN
+F 3 "" H 1500 2650 50  0001 C CNN
+	1    1500 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR04
+U 1 1 612251DF
+P 3650 2650
+F 0 "#PWR04" H 3650 2500 50  0001 C CNN
+F 1 "VDD" H 3667 2823 50  0000 C CNN
+F 2 "" H 3650 2650 50  0001 C CNN
+F 3 "" H 3650 2650 50  0001 C CNN
+	1    3650 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3650 2650 3650 2750
+$Comp
+L power:GND #PWR03
+U 1 1 61226A0E
+P 3550 4750
+F 0 "#PWR03" H 3550 4500 50  0001 C CNN
+F 1 "GND" H 3555 4577 50  0000 C CNN
+F 2 "" H 3550 4750 50  0001 C CNN
+F 3 "" H 3550 4750 50  0001 C CNN
+	1    3550 4750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3550 4350 3550 4750
+Wire Wire Line
+	3950 3950 4700 3950
+$Comp
+L power:GND #PWR05
+U 1 1 6122D6D2
+P 5450 4050
+F 0 "#PWR05" H 5450 3800 50  0001 C CNN
+F 1 "GND" H 5455 3877 50  0000 C CNN
+F 2 "" H 5450 4050 50  0001 C CNN
+F 3 "" H 5450 4050 50  0001 C CNN
+	1    5450 4050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5100 3950 5450 3950
+Wire Wire Line
+	5450 3950 5450 4050
+Connection ~ 5450 3950
+Wire Wire Line
+	3150 3150 2800 3150
+Wire Wire Line
+	2800 3150 2800 2300
+Wire Wire Line
+	2800 2300 4250 2300
+Wire Wire Line
+	4250 2300 4250 3150
+Wire Wire Line
+	4250 3150 3950 3150
+Text Label 3100 2300 0    50   ~ 0
+deep_sleep_reset
+$Comp
+L intrasense_board:Intrasense_calib_board U3
+U 1 1 61230523
+P 7250 4300
+F 0 "U3" H 7580 4346 50  0000 L CNN
+F 1 "Intrasense_calib_board" H 7580 4255 50  0000 L CNN
+F 2 "Module:Intrasense_calib_board" H 7250 3150 50  0001 C CNN
+F 3 "https://wiki.wemos.cc/products:d1:d1_mini#documentation" H 5400 3150 50  0001 C CNN
+	1    7250 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW1
+U 1 1 61A3B6B9
+P 4900 3950
+F 0 "SW1" H 4900 4235 50  0000 C CNN
+F 1 "SW_SCANC" H 4900 4144 50  0000 C CNN
+F 2 "" H 4900 4150 50  0001 C CNN
+F 3 "~" H 4900 4150 50  0001 C CNN
+	1    4900 3950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:Jumper_NO_Small JP1
+U 1 1 612296C6
+P 4150 3550
+F 0 "JP1" H 4150 3735 50  0000 C CNN
+F 1 "serial log" H 4150 3644 50  0000 C CNN
+F 2 "" H 4150 3550 50  0001 C CNN
+F 3 "~" H 4150 3550 50  0001 C CNN
+	1    4150 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW2
+U 1 1 61A42C2D
+P 5200 3650
+F 0 "SW2" H 5200 3935 50  0000 C CNN
+F 1 "SW_FN" H 5200 3844 50  0000 C CNN
+F 2 "" H 5200 3850 50  0001 C CNN
+F 3 "~" H 5200 3850 50  0001 C CNN
+	1    5200 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5000 3650 3950 3650
+Wire Wire Line
+	5400 3650 5450 3650
+Wire Wire Line
+	5450 3650 5450 3950
+Wire Wire Line
+	4250 3550 5450 3550
+Wire Wire Line
+	5450 3550 5450 3650
+Connection ~ 5450 3650
+Wire Wire Line
+	4050 3550 3950 3550
+$Comp
+L power:GND #PWR02
+U 1 1 61A4FF49
+P 1500 3350
+F 0 "#PWR02" H 1500 3100 50  0001 C CNN
+F 1 "GND" H 1505 3177 50  0000 C CNN
+F 2 "" H 1500 3350 50  0001 C CNN
+F 3 "" H 1500 3350 50  0001 C CNN
+	1    1500 3350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1500 2650 1500 2900
+Wire Wire Line
+	1500 3200 1500 3350
+$Comp
+L oled1.3:oled1.3 U2
+U 1 1 61A68351
+P 9250 4300
+F 0 "U2" H 9580 4346 50  0000 L CNN
+F 1 "oled1.3" H 9580 4255 50  0000 L CNN
+F 2 "" H 9250 3150 50  0001 C CNN
+F 3 "" H 7400 3150 50  0001 C CNN
+	1    9250 4300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 3900 6850 3900
+Wire Wire Line
+	6500 3850 6500 3900
+$Comp
+L power:VDD #PWR06
+U 1 1 61A3A713
+P 6500 3850
+F 0 "#PWR06" H 6500 3700 50  0001 C CNN
+F 1 "VDD" H 6517 4023 50  0000 C CNN
+F 2 "" H 6500 3850 50  0001 C CNN
+F 3 "" H 6500 3850 50  0001 C CNN
+	1    6500 3850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 4000 6500 4050
+Wire Wire Line
+	6850 4000 6500 4000
+$Comp
+L power:GND #PWR07
+U 1 1 61231446
+P 6500 4050
+F 0 "#PWR07" H 6500 3800 50  0001 C CNN
+F 1 "GND" H 6505 3877 50  0000 C CNN
+F 2 "" H 6500 4050 50  0001 C CNN
+F 3 "" H 6500 4050 50  0001 C CNN
+	1    6500 4050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8500 3900 8850 3900
+Wire Wire Line
+	8500 3850 8500 3900
+$Comp
+L power:VDD #PWR08
+U 1 1 61A740CE
+P 8500 3850
+F 0 "#PWR08" H 8500 3700 50  0001 C CNN
+F 1 "VDD" H 8517 4023 50  0000 C CNN
+F 2 "" H 8500 3850 50  0001 C CNN
+F 3 "" H 8500 3850 50  0001 C CNN
+	1    8500 3850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8500 4000 8500 4050
+Wire Wire Line
+	8850 4000 8500 4000
+$Comp
+L power:GND #PWR09
+U 1 1 61A740D6
+P 8500 4050
+F 0 "#PWR09" H 8500 3800 50  0001 C CNN
+F 1 "GND" H 8505 3877 50  0000 C CNN
+F 2 "" H 8500 4050 50  0001 C CNN
+F 3 "" H 8500 4050 50  0001 C CNN
+	1    8500 4050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8850 4200 8100 4200
+Wire Wire Line
+	8850 4300 8000 4300
+Wire Wire Line
+	8000 4300 8000 3350
+Wire Wire Line
+	5950 4300 6850 4300
+Wire Wire Line
+	3950 3250 6050 3250
+Wire Wire Line
+	3950 3350 5950 3350
+Wire Wire Line
+	6050 4200 6050 3250
+Wire Wire Line
+	6050 4200 6850 4200
+Wire Wire Line
+	5950 4300 5950 3350
+Connection ~ 5950 3350
+Wire Wire Line
+	5950 3350 8000 3350
+Wire Wire Line
+	8100 4200 8100 3250
+Connection ~ 6050 3250
+Wire Wire Line
+	6050 3250 8100 3250
+$EndSCHEMATC

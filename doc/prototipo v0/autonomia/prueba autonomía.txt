@@ -1,0 +1,11 @@
+Prueba duración carga
+Se utilizó la pila con la carga que vino
+
+Arranque        31/7    15:00
+Parada          2/8     13:50
+
+30 seg. de muetreo
+Full debug
+Conectada a PC configurada como hotspot
+
+

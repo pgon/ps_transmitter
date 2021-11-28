@@ -1,0 +1,37 @@
+WEMOS - SLEEP MODES
+https://diyi0t.com/how-to-reduce-the-esp8266-power-consumption/
+https://www.mischianti.org/2019/11/21/wemos-d1-mini-esp8266-the-three-type-of-sleep-mode-to-manage-energy-savings-part-4/
+https://efcomputer.net.au/blog/esp8266-deep-sleep-mode/
+https://diyprojects.io/esp8266-deep-sleep-mode-test-wake-pir-motion-detector/#.YO7TSjrQ9Ng
+https://programarfacil.com/esp8266/esp8266-deep-sleep-nodemcu-wemos-d1-mini/
+
+
+SOCKET Client
+use WiFiClient. it is a TCP socket client. call client.connect(ip, port) 
+Ejemplo cliente-servidor
+https://everythingesp.com/esp32-arduino-tutorial-sending-data-with-socket-client/
+
+
+MQTT
+Subscriptor para PC
+https://doc.qt.io/QtMQTT/qtmqtt-subscriptions-example.html
+Broker para ubuntu
+https://www.luisllamas.es/como-instalar-mosquitto-el-broker-mqtt/
+Cliente MQTT para Arduino
+https://pubsubclient.knolleary.net/
+
+
+WEMOS  I2C
+    I2C can be used to connect up to 127 nodes via a bus that only requires two data wires, known as SDA and SCL.
+        SDA => D2.
+        SCL => D1
+
+Acceso a memoria persistente
+unsigned long *rtc_memory = (unsigned long *)0x60001200;  // Genera un puntero a la memoria del RTC del WEMOS (que no pierde energía durante deep sleep)
+La otra es usar la API:
+    #include "user_interface.h"
+    byte rtcStore[2];
+    system_rtc_mem_read(64, rtcStore, 2);
+    system_rtc_mem_write(64, rtcStore, 2);
+
+
